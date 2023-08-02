@@ -1,4 +1,4 @@
-const EOL = typeof window === 'undefined' ? require('os').EOL : '\n';
+const EOL = typeof window === 'undefined' ? require('os').EOL : '\n'
 
 /**
  * 
@@ -9,7 +9,7 @@ const EOL = typeof window === 'undefined' ? require('os').EOL : '\n';
 
 function extractInfo(data) {
     const info = data.trim().slice(1, -1); // remove brackets: length: 03:06
-    return info.split(':');
+    return info.split(': ');
 }
 
 function lrcParser(data) {
@@ -24,11 +24,7 @@ function lrcParser(data) {
     const timeStart = /\[(\d*\:\d*\.?\d*)\]/ // i.g [00:10.55]
     const scriptText = /(.+)/ // Havana ooh na-na (ayy)
     const timeEnd = timeStart;
-    // console.log(">>>>>>>>", timeStart.source);
-    // console.log(timeEnd.source, "<<<<<<<<");
-
     const startAndText = new RegExp(timeStart.source + scriptText.source);
-    // console.log({ startAndText });
 
     const infos = [];
     const scripts = [];
@@ -70,7 +66,6 @@ function lrcParser(data) {
 // i.g: [01:09.10] -> 69.10
 function convertTime(string) {
     string = string.split(':');
-    console.log({ string });
     const minutes = parseInt(string[0], 10);
     const seconds = parseFloat(string[1]);
     if (minutes > 0) {
