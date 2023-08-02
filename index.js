@@ -24,9 +24,11 @@ function lrcParser(data) {
     const timeStart = /\[(\d*\:\d*\.?\d*)\]/ // i.g [00:10.55]
     const scriptText = /(.+)/ // Havana ooh na-na (ayy)
     const timeEnd = timeStart;
-    console.log(">>>>>>>>", timeStart.source);
-    console.log(timeEnd.source, "<<<<<<<<");
+    // console.log(">>>>>>>>", timeStart.source);
+    // console.log(timeEnd.source, "<<<<<<<<");
+
     const startAndText = new RegExp(timeStart.source + scriptText.source);
+    // console.log({ startAndText });
 
     const infos = [];
     const scripts = [];
@@ -41,4 +43,41 @@ function lrcParser(data) {
         result[key] = value;
         return result;
     }, result);
+
+    lines.splice(0, infos.length); // remove all info lines
+    const qualified = new RegExp(startAndText.source + "|" + timeEnd.source);
+    lines = lines.filter(line => qualified.test(line));
+
+    for (let i = 0, l = lines.length; i < l; i++) {
+        const matches = startAndText.exec(lines[i]);
+        const timeEndMatches = timeEnd.exec(lines[i + 1]);
+        if (matches && timeEndMatches) {
+            const [, start, text] = matches;
+            const [, end] = timeEndMatches;
+            scripts.push({
+                start: convertTime(start),
+                text,
+                end: convertTime(end)
+            })
+        }
+    }
+
+    result.scripts = scripts;
+    return result;
 }
+
+// convert time string to seconds
+// i.g: [01:09.10] -> 69.10
+function convertTime(string) {
+    string = string.split(':');
+    console.log({ string });
+    const minutes = parseInt(string[0], 10);
+    const seconds = parseFloat(string[1]);
+    if (minutes > 0) {
+        const sc = minutes * 60 + seconds;
+        return parseFloat(sc.toFixed(2));
+    }
+    return seconds;
+}
+
+module.exports = lrcParser;
